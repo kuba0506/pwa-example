@@ -1,8 +1,9 @@
 // SW Version
-const version = 1.1;
+const version = 1.3;
 
 // Static Cache - App Shell
 const appAssets = [
+    'offline.html',
     'index.html',
     'main.js',
     'images/flame.png',
@@ -32,12 +33,24 @@ self.addEventListener('activate', e => {
         });
     });
 
+    self.registration.showNotification('Message from SW', {
+        body: 'Service worker successfully installed',
+        // image: './images/logo.png',
+        icon: './images/icons/favicon-96x96.png',
+        badge: './images/icons/favicon-96x96.png',
+        actions: [{ action: 'view', title: 'Action title', icon: './images/icons/favicon-96x96.png' }]
+        //other options
+    });
+    
     e.waitUntil(cleaned);
 });
 
 // Static cache strategy - Cache with Network fallback
 const staticCache = (req, cacheName = `static-${version}`) => {
     return caches.match(req).then(cachedRes => {
+        if (!navigator.onLine)
+           return caches.match(new Request('offline.html'))
+
         // Return cached response if found
         if(cachedRes) return cachedRes;
 
@@ -111,3 +124,71 @@ self.addEventListener('message', e => {
     // Identify the message
     if (e.data.action === 'cleanGiphyCache') cleanGiphyCache(e.data.giphys)
 });
+
+
+//Notification
+// if (Notification.permission == 'granted') {
+//     showNotification();
+//     return;
+// }
+
+// if (Notification.permission !== 'denied') {
+//     Notification.requestPermission()
+//         .then(p => {
+//             if (p === 'granted') showNotification();
+//         })
+// }
+
+//sw - persistent notifications
+// self.registration.showNotification('Title', {
+//     body: 'Some body text',
+//     image: './images/logo.png',
+//     icon: './images/icons/favicon-96x96.png',
+//     badge: './images/icons/favicon-96x96.png',
+//     actions: [{ action: 'view', title: 'Action title', icon: './images/icons/favicon-96x96.png'}]
+//     //other options
+// });
+
+// self.addEventListener('notificationclick', e => {
+//     if (!e.action) {// if there is no button,
+//         console.log('Notification clicked'); //clicked on notification body
+//         return;
+//     } 
+//     //handle action clicks
+//     switch (e.action) {
+//         case 'view':
+//             console.log('View action clicked');
+//             break;
+//         default:
+//             console.warn(`${e.action} action clicked`);
+//             break;
+//     }
+// });
+
+
+//non-persistent notification
+// var n = new Notification('Title', {
+//     body: 'body text',
+//     tag: 'test',
+//     renotify: false,
+//     requiredInteraction: true,
+//     actions: [
+//         {
+//             action: 'id',
+//             title: 'Action title',
+//             icon: 'path/to/some/icon.ext'
+//         }
+//     ], //buttons
+//     silent: false,
+//     // sound: 'path/to/sound',
+//     // vibrate: [200, 100, 200]
+// });
+
+// n.addEventListener('error', e => {
+//     console.error('Upps there was a problem', e);
+// });
+
+// n.addEventListener('click', e => {
+//     console.log('Notification clicked');
+//     n.close();
+// });

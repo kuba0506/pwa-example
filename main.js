@@ -1,5 +1,8 @@
 // Progressive Enhancement
 if (navigator.serviceWorker) {
+    Notification.requestPermission().then(p => {
+        console.log('ss')
+    })
     // Register SW
     navigator.serviceWorker.register('sw.js').catch(console.error);
 
