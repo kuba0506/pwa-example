@@ -1,5 +1,5 @@
 // SW Version
-const version = 1.3;
+const version = 1.4;
 
 // Static Cache - App Shell
 const appAssets = [
@@ -33,14 +33,14 @@ self.addEventListener('activate', e => {
         });
     });
 
-    self.registration.showNotification('Message from SW', {
-        body: 'Service worker successfully installed',
-        // image: './images/logo.png',
-        icon: './images/icons/favicon-96x96.png',
-        badge: './images/icons/favicon-96x96.png',
-        actions: [{ action: 'view', title: 'Action title', icon: './images/icons/favicon-96x96.png' }]
-        //other options
-    });
+    // self.registration.showNotification('Message from SW', {
+    //     body: 'Service worker successfully installed',
+    //     // image: './images/logo.png',
+    //     icon: './images/icons/favicon-96x96.png',
+    //     badge: './images/icons/favicon-96x96.png',
+    //     actions: [{ action: 'view', title: 'Action title', icon: './images/icons/favicon-96x96.png' }]
+    //     //other options
+    // });
     
     e.waitUntil(cleaned);
 });

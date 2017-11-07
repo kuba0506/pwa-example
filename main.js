@@ -1,10 +1,26 @@
 // Progressive Enhancement
 if (navigator.serviceWorker) {
-    Notification.requestPermission().then(p => {
-        console.log('ss')
-    })
+    // Notification.requestPermission().then(p => {
+    //     console.log('ss')
+    // })
     // Register SW
-    navigator.serviceWorker.register('sw.js').catch(console.error);
+    navigator.serviceWorker.register('sw.js')
+        .then(x => {
+            if (Notification.permission == 'granted') {
+                console.log('permisson granted')
+                showNotification();
+                return;
+            }
+
+            if (Notification.permission !== 'denied') {
+                Notification.requestPermission()
+                    .then(p => {
+                        if (p === 'granted') showNotification();
+                        // if (p === 'granted') console.log('permission granted');
+                    })
+            }
+        })
+        .catch(console.error);
 
     // Giphy cache clean
     function giphyCacheClean(giphys) {
@@ -13,10 +29,43 @@ if (navigator.serviceWorker) {
             .then(registration => {
                 // console.log(giphys)
                 // Only post message to active SW
-                if (registration.active) registration.active.postMessage({action: 'cleanGiphyCache', giphys: giphys});
+                if (registration.active) registration.active.postMessage({ action: 'cleanGiphyCache', giphys: giphys });
             });
     }
 }
+
+const showNotification = () => {
+    var n = new Notification('Notification', {
+        body: 'Service worker successfully installed',
+        icon: './images/icons/favicon-96x96.png',
+        // image: './images/logo.png',
+        tag: 'test',
+        renotify: false,
+        requiredInteraction: true,
+        // actions: [
+        //     {
+        //         action: 'id',
+        //         title: 'Action title',
+        //         icon: 'path/to/some/icon.ext'
+        //     }
+        // ], //buttons
+        // silent: false,
+        // sound: 'path/to/sound',
+        // vibrate: [200, 100, 200]
+
+    //     badge: './images/icons/favicon-96x96.png',
+    //     actions: [{ action: 'view', title: 'Action title', icon: './images/icons/favicon-96x96.png' }]
+    });
+
+    n.addEventListener('error', e => {
+        console.error('Upps there was a problem', e);
+    });
+
+    n.addEventListener('click', e => {
+        console.log('Notification clicked');
+        n.close();
+    });
+};
 
 
 // Giphy API object
@@ -32,13 +81,13 @@ var giphy = {
 function update() {
 
     // Toggle refresh state
-   $('#update .icon').toggleClass('d-none');
+    $('#update .icon').toggleClass('d-none');
 
     // Call Giphy API
-    $.get( giphy.url, giphy.query)
+    $.get(giphy.url, giphy.query)
 
         // Success
-        .done( function (res) {
+        .done(function (res) {
 
             // Empty Element
             $('#giphys').empty();
@@ -46,14 +95,14 @@ function update() {
             let latestGiphys = [];
 
             // Loop Giphys
-            $.each( res.data, function (i, giphy) {
+            $.each(res.data, function (i, giphy) {
                 // Add to latest Giphys
                 latestGiphys.push(giphy.images.downsized_large.url);
 
                 // Add Giphy HTML
                 $('#giphys').prepend(
                     '<div class="col-sm-6 col-md-4 col-lg-3 p-1">' +
-                        '<img class="w-100 img-fluid" src="' + giphy.images.downsized_large.url + '">' +
+                    '<img class="w-100 img-fluid" src="' + giphy.images.downsized_large.url + '">' +
                     '</div>'
                 );
 
@@ -63,14 +112,14 @@ function update() {
         })
 
         // Failure
-        .fail(function(){
-            
+        .fail(function () {
+
             $('.alert').slideDown();
-            setTimeout( function() { $('.alert').slideUp() }, 2000);
+            setTimeout(function () { $('.alert').slideUp() }, 2000);
         })
 
         // Complete
-        .always(function() {
+        .always(function () {
 
             // Re-Toggle refresh state
             $('#update .icon').toggleClass('d-none');
